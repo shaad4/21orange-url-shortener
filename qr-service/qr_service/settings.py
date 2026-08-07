@@ -4,12 +4,25 @@ from pathlib import Path
 # Base directory of the project
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Security settings
-SECRET_KEY = 'django-insecure-q9u8i7y6-f)20(b%*h3_&^u-p*y6^z2+&x5z0s7f8f=6@+*3'
-DEBUG = True
+# Load environment variables from root .env file if it exists
+env_file = BASE_DIR.parent / '.env'
+if env_file.exists():
+    with open(env_file) as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                try:
+                    key, val = line.split('=', 1)
+                    os.environ.setdefault(key.strip(), val.strip())
+                except ValueError:
+                    pass
 
-# ALLOWED_HOSTS allows all hostnames during local learning / dev (not for production)
-ALLOWED_HOSTS = ["*"]
+# Security settings
+SECRET_KEY = os.environ.get("QR_SECRET_KEY", "fallback-qr-secret-key-12345")
+DEBUG = os.environ.get("DEBUG", "True").lower() in ("true", "1", "yes")
+
+# ALLOWED_HOSTS allows list of hostnames read from env
+ALLOWED_HOSTS = [host.strip() for host in os.environ.get("ALLOWED_HOSTS", "*").split(",") if host.strip()]
 
 # Application definition
 INSTALLED_APPS = [
@@ -62,7 +75,7 @@ WSGI_APPLICATION = 'qr_service.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / os.environ.get("QR_DB_NAME", "db.sqlite3"),
     }
 }
 
@@ -77,12 +90,12 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS Settings
-# Allow request from the React frontend running on port 3000
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
+# Allow requests from origins specified in env (comma-separated)
+CORS_ALLOWED_ORIGINS = [origin.strip() for origin in os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",") if origin.strip()]
 
 # Service URLs for Inter-service Calls
-# Reads from environment variable with a sane localhost default.
-# This makes it easy to switch to Kubernetes service names later without changing code.
-SHORTENER_SERVICE_URL = os.environ.get("SHORTENER_SERVICE_URL", "http://localhost:8001")
+# Reading from environment variables allows configuration dynamically in Kubernetes later.
+SHORTENER_SERVICE_URL = os.environ.get("SHORTENER_SERVICE_URL")
+if not SHORTENER_SERVICE_URL:
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured("The SHORTENER_SERVICE_URL environment variable is required but was not found.")
