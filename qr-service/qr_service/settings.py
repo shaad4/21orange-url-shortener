@@ -72,10 +72,13 @@ WSGI_APPLICATION = 'qr_service.wsgi.application'
 # Database
 # Using SQLite. While qr-service is stateless and has no models, 
 # Django expects a default database configuration to boot correctly.
+db_path = BASE_DIR / os.environ.get("QR_DB_NAME", "db.sqlite3")
+db_path.parent.mkdir(parents=True, exist_ok=True)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / os.environ.get("QR_DB_NAME", "db.sqlite3"),
+        'NAME': db_path,
     }
 }
 
