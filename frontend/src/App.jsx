@@ -34,17 +34,17 @@ function App() {
       const statuses = { shortener: 'offline', stats: 'offline', qr: 'offline' };
       
       try {
-        const res = await fetch(`${SHORTENER_URL}/health/`, { headers: { 'Accept': 'application/json' } });
+        const res = await fetch(`${SHORTENER_URL}/api/shortener/health/`, { headers: { 'Accept': 'application/json' } });
         if (res.ok) statuses.shortener = 'online';
       } catch (err) {}
 
       try {
-        const res = await fetch(`${STATS_URL}/health/`, { headers: { 'Accept': 'application/json' } });
+        const res = await fetch(`${STATS_URL}/api/stats/health/`, { headers: { 'Accept': 'application/json' } });
         if (res.ok) statuses.stats = 'online';
       } catch (err) {}
 
       try {
-        const res = await fetch(`${QR_URL}/health/`, { headers: { 'Accept': 'application/json' } });
+        const res = await fetch(`${QR_URL}/api/qr/health/`, { headers: { 'Accept': 'application/json' } });
         if (res.ok) statuses.qr = 'online';
       } catch (err) {}
 
