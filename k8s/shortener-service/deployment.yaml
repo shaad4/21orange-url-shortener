@@ -1,0 +1,32 @@
+apiVersion: apps/v1             # API version
+kind: Deployment                # type of object
+metadata:
+  name: shortener-service       # name of this Deployment object
+spec:
+  replicas: 1                   # how many Pod copies to keep running
+  selector:
+    matchLabels:
+      app: shortener-service    # Deployment manages any Pod with this label
+  template:                     # this is the "Pod blueprint
+    metadata:
+      labels:
+        app: shortener-service  # the label being matched above
+    spec:
+      containers:
+        - name: shortener-service
+          image: shortener-service:v1
+          imagePullPolicy: Never   # IMPORTANT: use the local image, don't try to pull from the internet
+          command: ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8001"]
+          ports:
+            - containerPort: 8001
+          env:
+            - name: STATS_SERVICE_URL
+              value: "http://stats-service:8002"
+            - name: DEBUG
+              value: "True"
+            - name: ALLOWED_HOSTS
+              value: "*"
+            - name: CORS_ALLOWED_ORIGINS
+              value: "http://21orange.local"
+            - name: SHORTENER_SECRET_KEY
+              value: "django-insecure-m&!*7u8h5q1-f)20(b%*h3_&^u-p*y6^z2+&x5z0s7f8f=6@+*"

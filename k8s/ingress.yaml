@@ -1,0 +1,82 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: 21orange-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: 21orange.local
+      http:
+        paths:
+          - path: /api/shortener/health
+            pathType: Prefix
+            backend:
+              service:
+                name: shortener-service
+                port:
+                  number: 8001
+          - path: /api/shorten
+            pathType: Prefix
+            backend:
+              service:
+                name: shortener-service
+                port:
+                  number: 8001
+          - path: /api/urls
+            pathType: Prefix
+            backend:
+              service:
+                name: shortener-service
+                port:
+                  number: 8001
+          - path: /r
+            pathType: Prefix
+            backend:
+              service:
+                name: shortener-service
+                port:
+                  number: 8001
+          - path: /api/stats/health
+            pathType: Prefix
+            backend:
+              service:
+                name: stats-service
+                port:
+                  number: 8002
+          - path: /api/stats
+            pathType: Prefix
+            backend:
+              service:
+                name: stats-service
+                port:
+                  number: 8002
+          - path: /api/clicks
+            pathType: Prefix
+            backend:
+              service:
+                name: stats-service
+                port:
+                  number: 8002
+          - path: /api/qr/health
+            pathType: Prefix
+            backend:
+              service:
+                name: qr-service
+                port:
+                  number: 8003
+          - path: /api/qr
+            pathType: Prefix
+            backend:
+              service:
+                name: qr-service
+                port:
+                  number: 8003
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 3000

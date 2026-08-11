@@ -1,0 +1,51 @@
+services:
+
+  shortener-service:
+    build: ./shortener-service
+    env_file:
+      - .env
+    environment:
+      - STATS_SERVICE_URL=http://stats-service:8002
+    ports:
+      - "8001:8001"
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8001"
+    volumes:
+      - shortener_data:/app/data
+
+  stats-service:
+    build: ./stats-service
+    env_file:
+      - .env
+    ports:
+      - "8002:8002"
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8002"
+    volumes:
+      - stats_data:/app/data
+
+  qr-service:
+    build: ./qr-service
+    env_file:
+      - .env
+    environment:
+      - SHORTENER_SERVICE_URL=http://shortener-service:8001
+    ports:
+      - "8003:8003"
+    volumes:
+      - qr_data:/app/data
+
+  frontend:
+    build: ./frontend
+    env_file:
+      - .env
+    environment:
+      - VITE_SHORTENER_URL=http://localhost:8001
+      - VITE_STATS_URL=http://localhost:8002
+      - VITE_QR_URL=http://localhost:8003
+    ports:
+      - "3000:3000"
+
+
+volumes:
+  shortener_data:
+  stats_data:
+  qr_data:
