@@ -3,6 +3,7 @@ from urls_app import views
 
 urlpatterns = [
     path('health/', views.health_check, name='health_check'),
+    path('api/shortener/health/', views.health_check, name='health_check_api'), # custom ingress health check
     path('api/shorten/', views.shorten_url, name='shorten_url'),
     path('api/urls/<str:short_code>/', views.url_detail, name='url_detail'),
     # Support both with and without trailing slash for the redirect endpoint

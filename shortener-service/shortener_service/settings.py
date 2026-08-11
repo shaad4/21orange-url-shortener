@@ -71,10 +71,13 @@ WSGI_APPLICATION = 'shortener_service.wsgi.application'
 
 # Database
 # Simple SQLite database with name loaded dynamically from env
+db_path = BASE_DIR / os.environ.get("SHORTENER_DB_NAME", "db.sqlite3")
+db_path.parent.mkdir(parents=True, exist_ok=True)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / os.environ.get("SHORTENER_DB_NAME", "db.sqlite3"),
+        'NAME': db_path,
     }
 }
 

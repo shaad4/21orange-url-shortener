@@ -20,8 +20,8 @@ def shorten_url(request):
     if serializer.is_valid():
         try:
             url_obj = serializer.save()
-            # Construct short_url as http://localhost:8001/r/<code>/
-            short_url = f"http://localhost:8001/r/{url_obj.short_code}/"
+            # Construct short_url dynamically using the request's absolute URI
+            short_url = request.build_absolute_uri(f"/r/{url_obj.short_code}/")
             return Response({
                 "short_code": url_obj.short_code,
                 "long_url": url_obj.long_url,
