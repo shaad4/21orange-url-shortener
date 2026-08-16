@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [main, staging, develop, 'feature/**']
+  pull_request:
+    branches: [main, staging, develop]
+
+jobs:
+  test-django-service:
+    name: Test ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [shortener-service, stats-service, qr-service]
+    defaults:
+      run:
+        working-directory: ${{ matrix.service }}
+    env:
+      DEBUG: "True"
+      ALLOWED_HOSTS: "*"
+      CORS_ALLOWED_ORIGINS: "http://localhost:3000"
+      SHORTENER_SECRET_KEY: "ci-test-key-shortener"
+      STATS_SECRET_KEY: "ci-test-key-stats"
+      QR_SECRET_KEY: "ci-test-key-qr"
+      STATS_SERVICE_URL: "http://localhost:8002"
+      SHORTENER_SERVICE_URL: "http://localhost:8001"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: ${{ matrix.service }}/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run migrations (build check)
+        run: python manage.py migrate --noinput
+        if: matrix.service != 'qr-service'
+
+      - name: Run tests
+        run: python manage.py test
+
+  test-frontend:
+    name: Test frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test
+        env:
+          VITE_PORT: 3000
+          VITE_SHORTENER_URL: http://localhost:8001
+          VITE_STATS_URL: http://localhost:8002
+          VITE_QR_URL: http://localhost:8003
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_PORT: 3000
+          VITE_SHORTENER_URL: http://localhost:8001
+          VITE_STATS_URL: http://localhost:8002
+          VITE_QR_URL: http://localhost:8003
