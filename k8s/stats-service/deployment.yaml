@@ -27,5 +27,8 @@ spec:
             - name: CORS_ALLOWED_ORIGINS
               value: "http://21orange.local"
             - name: STATS_SECRET_KEY
-              value: "django-insecure-k3j4n6l5-f)20(b%*h3_&^u-p*y6^z2+&x5z0s7f8f=6@+*2"
+              valueFrom:
+                secretKeyRef:
+                  name: stats-secrets
+                  key: SECRET_KEY
           
