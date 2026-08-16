@@ -35,6 +35,6 @@ def generate_qr(request, short_code):
 def health_check(request):
     """
     GET /health/
-    Returns {"status": "ok"} to indicate this service is up.
+    Returns {"status": "ok"} to indicate this service is up .
     """
     return Response({"status": "ok"})
