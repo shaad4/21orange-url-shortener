@@ -19,5 +19,5 @@ class GenerateQrTests(TestCase):
     def test_generate_qr_returns_png_when_code_exists(self, mock_get):
         mock_get.return_value = Mock(status_code=200, raise_for_status=lambda: None)
         response = self.client.get('/api/qr/abc123/')
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'image/png')
