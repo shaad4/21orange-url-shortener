@@ -1,5 +1,6 @@
 name: CI
 
+# Run CI on pushes and pull requests
 on:
   push:
     branches: [main, staging, develop, 'feature/**']
@@ -7,9 +8,12 @@ on:
     branches: [main, staging, develop]
 
 jobs:
+
+  # 1. Test Django services
   test-django-service:
     name: Test ${{ matrix.service }}
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
@@ -42,7 +46,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run migrations (build check)
+      - name: Run migrations
         run: python manage.py migrate --noinput
         if: matrix.service != 'qr-service'
 
@@ -50,6 +54,7 @@ jobs:
         run: python manage.py test
 
 
+  # 2. Test frontend
   test-frontend:
     name: Test frontend
     runs-on: ubuntu-latest
@@ -91,6 +96,7 @@ jobs:
           VITE_QR_URL: http://localhost:8003
 
 
+  # 3. Analyze code quality
   sonarcloud:
     name: SonarCloud Analysis
     runs-on: ubuntu-latest
@@ -119,7 +125,6 @@ jobs:
             coverage xml
             cd ..
           done
-
         env:
           DEBUG: "True"
           ALLOWED_HOSTS: "*"
@@ -140,7 +145,6 @@ jobs:
         run: |
           npm ci
           npm run test:coverage
-
         env:
           VITE_PORT: 3000
           VITE_SHORTENER_URL: http://localhost:8001
@@ -154,13 +158,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
 
-      - name: Wait for and check Quality Gate
+      - name: Check Quality Gate
         run: |
           set -e
 
           TASK_ID=$(grep ceTaskId .scannerwork/report-task.txt | cut -d'=' -f2)
-
-          echo "Polling task: $TASK_ID"
 
           for i in $(seq 1 30); do
             STATUS=$(curl -s -u "${SONAR_TOKEN}:" \
@@ -172,7 +174,6 @@ jobs:
             if [ "$STATUS" = "SUCCESS" ]; then
               break
             elif [ "$STATUS" = "FAILED" ] || [ "$STATUS" = "CANCELED" ]; then
-              echo "Analysis task failed"
               exit 1
             fi
 
@@ -183,10 +184,9 @@ jobs:
             "https://sonarcloud.io/api/qualitygates/project_status?projectKey=shaad4_21orange-url-shortener" | \
             python3 -c "import sys,json; print(json.load(sys.stdin)['projectStatus']['status'])")
 
-          echo "Quality Gate status: $GATE_STATUS"
+          echo "Quality Gate: $GATE_STATUS"
 
           if [ "$GATE_STATUS" != "OK" ] && [ "$GATE_STATUS" != "NONE" ]; then
-            echo "Quality Gate failed"
             exit 1
           fi
 
@@ -194,6 +194,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 
+  # 4. Build and push Docker images
   docker-build-push:
     name: Build & Push Docker Images
     runs-on: ubuntu-latest
@@ -223,15 +224,14 @@ jobs:
         with:
           context: ./${{ matrix.service }}
           push: true
-
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/21orange-${{ matrix.service }}:latest
             ${{ secrets.DOCKER_USERNAME }}/21orange-${{ matrix.service }}:${{ github.sha }}
-
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
 
+  # 5. Deploy develop branch to Minikube
   deploy-to-minikube:
     name: Deploy to Minikube
     runs-on: self-hosted
