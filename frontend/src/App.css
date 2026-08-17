@@ -92,6 +92,7 @@ body {
   text-transform: uppercase;
   letter-spacing: -0.04em;
   user-select: none;
+  cursor: pointer;
 }
 
 .logo-block-num {
@@ -103,6 +104,7 @@ body {
   line-height: 1;
   z-index: 2;
   box-shadow: 3px 3px 0px var(--black);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .logo-block-text {
@@ -115,6 +117,17 @@ body {
   line-height: 1;
   z-index: 1;
   box-shadow: 3px 3px 0px var(--black);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.brutalist-logo:hover .logo-block-num {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px var(--black);
+}
+
+.brutalist-logo:hover .logo-block-text {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--black);
 }
 
 .status-indicator-group {
@@ -142,7 +155,48 @@ body {
   color: var(--red);
 }
 
+.version-badge {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--black);
+  text-transform: uppercase;
+  background-color: var(--black);
+  color: var(--white);
+  box-shadow: 1.5px 1.5px 0px var(--orange);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.version-badge:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 2.5px 2.5px 0px var(--orange);
+}
+
+.version-badge::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background-color: var(--orange);
+  border-radius: 50% !important;
+}
+
 /* Core Panel Cards */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .card {
   background-color: var(--white);
   border: var(--border-width) solid var(--black);
@@ -151,6 +205,18 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Stagger column entry animations */
+.column-left .card {
+  animation-delay: 0.05s;
+}
+.column-middle .card {
+  animation-delay: 0.1s;
+}
+.column-right .card {
+  animation-delay: 0.15s;
 }
 
 .card-title {
@@ -179,6 +245,7 @@ input[type="url"] {
   outline: none;
   background-color: var(--white);
   color: var(--black);
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 input[type="url"]:focus {
@@ -202,7 +269,7 @@ input[type="url"]:focus {
   color: var(--black);
   box-shadow: 3px 3px 0px var(--black);
   user-select: none;
-  transition: none; /* Instant transitions for Minimal Brutalism */
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   width: 100%;
 }
 
@@ -211,14 +278,30 @@ input[type="url"]:focus {
   color: var(--white);
 }
 
+.btn-success {
+  background-color: var(--green);
+  color: var(--white);
+}
+
+.btn-success:hover {
+  background-color: var(--black);
+  color: var(--green);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px var(--black);
+}
+
 .btn:hover {
   background-color: var(--black);
   color: var(--white);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px var(--black);
 }
 
 .btn-primary:hover {
   background-color: var(--black);
   color: var(--orange);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px var(--black);
 }
 
 .btn:active {
@@ -249,6 +332,8 @@ input[type="url"]:focus {
   align-items: center;
   justify-content: center;
   gap: 1rem;
+  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.1s;
 }
 
 .empty-icon {
@@ -301,6 +386,7 @@ input[type="url"]:focus {
   gap: 1.25rem;
   border-top: var(--border-width) solid var(--black);
   padding-top: 1.25rem;
+  animation: slideUpFade 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .qr-section {
@@ -385,6 +471,7 @@ input[type="url"]:focus {
   border: 1px solid var(--black);
   padding: 0.15rem 0.4rem;
   text-transform: uppercase;
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-clear:hover {
@@ -406,11 +493,15 @@ input[type="url"]:focus {
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
+  box-shadow: 0px 0px 0px var(--black);
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .history-item:hover {
   background-color: var(--orange-light);
   border-color: var(--orange);
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0px var(--black);
 }
 
 .history-item.selected {
@@ -443,6 +534,7 @@ input[type="url"]:focus {
 .history-item-arrow {
   font-size: 0.85rem;
   font-weight: bold;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Error Alerts */

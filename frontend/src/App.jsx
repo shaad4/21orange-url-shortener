@@ -222,11 +222,11 @@ function App() {
             <span className={`status-badge ${health.stats}`} id="health-stats">
               Analytics: {health.stats}
             </span>
-            <span className={`status-badge ${health.qr}`} id="health-qr">
+            <span className={`status-badge ${health.qr}`} id="health-qr-service">
               QR Gen: {health.qr}
             </span>
-            <span id="health-qr">
-              version : 1.0.0
+            <span className="version-badge" id="health-qr">
+              version: 1.1.0
             </span>
           </div>
         </nav>
@@ -277,8 +277,8 @@ function App() {
             </div>
 
             <div className="action-buttons">
-              <button className="btn" onClick={handleCopy} id="btn-copy">
-                {copyText}
+              <button className={`btn ${copyText === 'Copied!' ? 'btn-success' : ''}`} onClick={handleCopy} id="btn-copy">
+                {copyText === 'Copied!' ? '✓ Copied' : 'Copy'}
               </button>
               <button className="btn btn-primary" onClick={toggleQr} id="btn-qr">
                 {showQr ? 'Hide QR' : 'Show QR'}
