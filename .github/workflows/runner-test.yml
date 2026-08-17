@@ -1,3 +1,4 @@
+# Self-hosted runner connectivity test
 name: Self-Hosted Runner Test
 
 on:
