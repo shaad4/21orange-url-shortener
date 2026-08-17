@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: qr-service
-          image: qr-service:v1
-          imagePullPolicy: Never   # IMPORTANT: use the local image, don't try to pull from the internet
+          image: shaadn/21orange-qr-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8003
           env:

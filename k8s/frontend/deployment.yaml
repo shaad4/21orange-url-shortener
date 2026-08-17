@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: frontend:v1
-          imagePullPolicy: Never
+          image: shaadn/21orange-frontend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000
 

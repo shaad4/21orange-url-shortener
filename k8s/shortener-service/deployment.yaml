@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: shortener-service
-          image: shortener-service:v1
-          imagePullPolicy: Never   # IMPORTANT: use the local image, don't try to pull from the internet
+          image: shaadn/21orange-shortener-service:latest
+          imagePullPolicy: Always
           command: ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8001"]
           ports:
             - containerPort: 8001
