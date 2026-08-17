@@ -225,6 +225,9 @@ function App() {
             <span className={`status-badge ${health.qr}`} id="health-qr">
               QR Gen: {health.qr}
             </span>
+            <span id="health-qr">
+              version : 1.0.0
+            </span>
           </div>
         </nav>
 
