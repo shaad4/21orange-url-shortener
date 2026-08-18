@@ -57,3 +57,5 @@ build/
 ._*
 Thumbs.db
 ehthumbs.db
+k8s/secrets/*.yaml
+!k8s/secrets/*.example.yaml

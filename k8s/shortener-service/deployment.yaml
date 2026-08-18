@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: shortener-service
-          image: shortener-service:v1
-          imagePullPolicy: Never   # IMPORTANT: use the local image, don't try to pull from the internet
+          image: shaadn/21orange-shortener-service:latest
+          imagePullPolicy: Always
           command: ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8001"]
           ports:
             - containerPort: 8001
@@ -29,4 +29,7 @@ spec:
             - name: CORS_ALLOWED_ORIGINS
               value: "http://21orange.local"
             - name: SHORTENER_SECRET_KEY
-              value: "django-insecure-m&!*7u8h5q1-f)20(b%*h3_&^u-p*y6^z2+&x5z0s7f8f=6@+*"
+              valueFrom:
+                secretKeyRef:
+                  name: shortener-secrets
+                  key: SECRET_KEY

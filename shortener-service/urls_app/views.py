@@ -1,3 +1,4 @@
+import logging
 import requests
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
@@ -8,6 +9,8 @@ from rest_framework import status
 
 from urls_app.models import Url
 from urls_app.serializers import UrlSerializer
+
+logger = logging.getLogger(__name__)
 
 @api_view(['POST'])
 def shorten_url(request):
@@ -61,7 +64,7 @@ def redirect_url(request, short_code):
         requests.post(stats_url, json={"short_code": short_code}, timeout=3)
     except requests.RequestException as e:
         # Log failure locally but allow the flow to continue.
-        print(f"[WARNING] Stats-service click logging failed: {e}")
+        logger.warning(f"Stats-service click logging failed: {e}")
 
     # Perform redirect
     return HttpResponseRedirect(url_obj.long_url)

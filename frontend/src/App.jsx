@@ -30,31 +30,52 @@ function App() {
 
   // Query health check endpoints on mount and periodically
   useEffect(() => {
+    let isMounted = true;
     const checkServiceHealth = async () => {
       const statuses = { shortener: 'offline', stats: 'offline', qr: 'offline' };
       
       try {
         const res = await fetch(`${SHORTENER_URL}/api/shortener/health/`, { headers: { 'Accept': 'application/json' } });
-        if (res.ok) statuses.shortener = 'online';
-      } catch (err) {}
+        if (res.ok && isMounted) statuses.shortener = 'online';
+      } catch (err) {
+        // Ignore connection errors during health polling
+      }
 
       try {
         const res = await fetch(`${STATS_URL}/api/stats/health/`, { headers: { 'Accept': 'application/json' } });
-        if (res.ok) statuses.stats = 'online';
-      } catch (err) {}
+        if (res.ok && isMounted) statuses.stats = 'online';
+      } catch (err) {
+        // Ignore connection errors during health polling
+      }
 
       try {
         const res = await fetch(`${QR_URL}/api/qr/health/`, { headers: { 'Accept': 'application/json' } });
-        if (res.ok) statuses.qr = 'online';
-      } catch (err) {}
+        if (res.ok && isMounted) statuses.qr = 'online';
+      } catch (err) {
+        // Ignore connection errors during health polling
+      }
 
-      setHealth(statuses);
+      if (isMounted) {
+        setHealth(statuses);
+      }
     };
 
     checkServiceHealth();
     const interval = setInterval(checkServiceHealth, 10000);
-    return () => clearInterval(interval);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
+
+  // Revoke object URL to prevent memory leaks when the QR code changes or component unmounts
+  useEffect(() => {
+    return () => {
+      if (qrBlobUrl) {
+        URL.revokeObjectURL(qrBlobUrl);
+      }
+    };
+  }, [qrBlobUrl]);
 
   // Update history in state and localStorage
   const saveToHistory = (newEntry) => {
@@ -201,8 +222,11 @@ function App() {
             <span className={`status-badge ${health.stats}`} id="health-stats">
               Analytics: {health.stats}
             </span>
-            <span className={`status-badge ${health.qr}`} id="health-qr">
+            <span className={`status-badge ${health.qr}`} id="health-qr-service">
               QR Gen: {health.qr}
+            </span>
+            <span className="version-badge" id="health-qr">
+              version: 1.1.1
             </span>
           </div>
         </nav>
@@ -253,8 +277,8 @@ function App() {
             </div>
 
             <div className="action-buttons">
-              <button className="btn" onClick={handleCopy} id="btn-copy">
-                {copyText}
+              <button className={`btn ${copyText === 'Copied!' ? 'btn-success' : ''}`} onClick={handleCopy} id="btn-copy">
+                {copyText === 'Copied!' ? '✓ Copied' : 'Copy'}
               </button>
               <button className="btn btn-primary" onClick={toggleQr} id="btn-qr">
                 {showQr ? 'Hide QR' : 'Show QR'}

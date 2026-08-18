@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -12,8 +11,8 @@ def record_click(request):
     Logs a click event for the given short_code. Returns 201 Created.
     """
     short_code = request.data.get('short_code')
-    if not short_code:
-        return Response({"error": "short_code is required"}, status=status.HTTP_400_BAD_REQUEST)
+    if not short_code or not isinstance(short_code, str) or len(short_code) > 6:
+        return Response({"error": "Valid short_code of length 6 or less is required"}, status=status.HTTP_400_BAD_REQUEST)
     
     # Create and save a new Click entry
     Click.objects.create(short_code=short_code)

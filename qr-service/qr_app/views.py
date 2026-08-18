@@ -13,6 +13,9 @@ def generate_qr(request, short_code):
     Calls shortener-service to verify the short code. Generates a QR code 
     pointing to the short URL and returns it as a PNG image.
     """
+    if not short_code or not short_code.isalnum() or len(short_code) > 6:
+        return JsonResponse({"error": "Invalid short code format"}, status=400)
+
     shortener_url = f"{settings.SHORTENER_SERVICE_URL}/api/urls/{short_code}/"
     try:
         response = requests.get(shortener_url, timeout=3)
@@ -35,6 +38,6 @@ def generate_qr(request, short_code):
 def health_check(request):
     """
     GET /health/
-    Returns {"status": "ok"} to indicate this service is up.
+    Returns {"status": "ok"} to indicate this service is up .
     """
     return Response({"status": "ok"})

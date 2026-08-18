@@ -1,0 +1,25 @@
+# Self-hosted runner connectivity test
+name: Self-Hosted Runner Test
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - develop
+
+jobs:
+  test-runner:
+    runs-on: self-hosted
+
+    steps:
+      - name: Show runner information
+        run: |
+          echo "Runner is working!"
+          hostname
+          whoami
+
+      - name: Check Kubernetes
+        run: |
+          kubectl get nodes
+          kubectl get pods
