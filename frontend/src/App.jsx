@@ -226,7 +226,7 @@ function App() {
               QR Gen: {health.qr}
             </span>
             <span className="version-badge" id="health-qr">
-              version: 1.1.0
+              version: 1.1.1
             </span>
           </div>
         </nav>
