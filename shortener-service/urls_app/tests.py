@@ -1,3 +1,4 @@
+from unittest.mock import patch
 from django.test import TestCase
 from django.urls import reverse
 from urls_app.models import Url
@@ -31,6 +32,23 @@ class ShortenUrlTests(TestCase):
         )
         self.assertEqual(response.status_code, 400)
 
+    @patch('urls_app.models.Url.objects.filter')
+    def test_generate_unique_code_fails_after_5_attempts(self, mock_filter):
+        mock_filter.return_value.exists.return_value = True
+        with self.assertRaises(ValueError):
+            Url.generate_unique_code()
+
+    @patch('urls_app.models.Url.generate_unique_code')
+    def test_shorten_url_handles_value_error(self, mock_generate):
+        mock_generate.side_effect = ValueError("Failed to generate a unique short code after 5 attempts.")
+        response = self.client.post(
+            '/api/shorten/',
+            data={"long_url": "https://example.com"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.json(), {"error": "Failed to generate a unique short code after 5 attempts."})
+
 
 class UrlDetailTests(TestCase):
     def test_url_detail_returns_404_for_missing_code(self):
@@ -50,3 +68,9 @@ class RedirectTests(TestCase):
         response = self.client.get(f'/r/{url_obj.short_code}/')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "https://example.com")
+
+
+class UrlModelTests(TestCase):
+    def test_url_string_representation(self):
+        url_obj = Url(long_url="https://example.com", short_code="abc123")
+        self.assertEqual(str(url_obj), "abc123 -> https://example.com")

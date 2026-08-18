@@ -40,3 +40,9 @@ class GetStatsTests(TestCase):
         data = response.json()
         self.assertEqual(data["click_count"], 2)
         self.assertIsNotNone(data["last_clicked"])
+
+
+class ClickModelTests(TestCase):
+    def test_click_string_representation(self):
+        click_obj = Click.objects.create(short_code="abc123")
+        self.assertIn("Code: abc123 clicked at", str(click_obj))
