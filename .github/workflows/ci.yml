@@ -244,7 +244,7 @@ jobs:
       - name: Update Kubernetes images
         run: |
           kubectl set image deployment/shortener-service \
-            shortener-service=shaadn/21orange-shortener-service:${{ github.sha }}
+            shortener-service=shaadn/21orange-shortener-service:rollback-test
 
           kubectl set image deployment/stats-service \
             stats-service=shaadn/21orange-stats-service:${{ github.sha }}
@@ -256,6 +256,28 @@ jobs:
             frontend=shaadn/21orange-frontend:${{ github.sha }}
 
       - name: Wait for deployments
+        id: rollout
+        continue-on-error: true
+        run: |
+          kubectl rollout status deployment/shortener-service --timeout=120s
+          kubectl rollout status deployment/stats-service --timeout=120s
+          kubectl rollout status deployment/qr-service --timeout=120s
+          kubectl rollout status deployment/frontend --timeout=120s
+
+      - name: Rollback failed deployments
+        if: steps.rollout.outcome == 'failure'
+        run: |
+          echo "Deployment failed. Starting rollback..."
+
+          kubectl rollout undo deployment/shortener-service
+          kubectl rollout undo deployment/stats-service
+          kubectl rollout undo deployment/qr-service
+          kubectl rollout undo deployment/frontend
+
+          echo "Rollback commands completed."
+
+      - name: Verify rollback
+        if: steps.rollout.outcome == 'failure'
         run: |
           kubectl rollout status deployment/shortener-service --timeout=120s
           kubectl rollout status deployment/stats-service --timeout=120s
@@ -263,6 +285,7 @@ jobs:
           kubectl rollout status deployment/frontend --timeout=120s
 
       - name: Verify deployment
+        if: steps.rollout.outcome == 'success'
         run: |
           kubectl get deployments
           kubectl get pods
