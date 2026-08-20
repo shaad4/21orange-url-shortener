@@ -244,7 +244,7 @@ jobs:
       - name: Update Kubernetes images
         run: |
           kubectl set image deployment/shortener-service \
-            shortener-service=shaadn/21orange-shortener-service:rollback-test
+            shortener-service=shaadn/21orange-shortener-service:${{ github.sha }}
 
           kubectl set image deployment/stats-service \
             stats-service=shaadn/21orange-stats-service:${{ github.sha }}
